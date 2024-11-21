@@ -91,4 +91,39 @@ public class ServeServiceImpl extends ServiceImpl<ServeMapper, Serve> implements
         }
         return baseMapper.selectById(id);
     }
+
+    @Override
+    public Serve onSale(Long id) {
+        Serve serve = baseMapper.selectById(id);
+        if(ObjectUtil.isNull(serve)){
+            throw new ForbiddenOperationException("区域服务不存在");
+        }
+        // 上架状态
+        Integer saleStatus = serve.getSaleStatus();
+        // 草稿或下架状态方可上架
+        if(!(saleStatus==FoundationStatusEnum.INIT.getStatus()||saleStatus==FoundationStatusEnum.DISABLE.getStatus())){
+            throw new ForbiddenOperationException("草稿或下架状态方可上架");
+        }
+        // 服务项id
+        Long serveItemId = serve.getServeItemId();
+        ServeItem serveItem = serveItemMapper.selectById(serveItemId);
+        if(ObjectUtil.isNull(serveItem)){
+            throw new ForbiddenOperationException("所属服务项不存在");
+        }
+        // 服务项的启用状态
+        Integer activeStatus = serveItem.getActiveStatus();
+        // 服务项为启用状态方可上架
+        if (!(FoundationStatusEnum.ENABLE.getStatus()==activeStatus)) {
+            throw new ForbiddenOperationException("服务项为启用状态方可上架");
+        }
+        // 更新上架状态
+        boolean update = lambdaUpdate()
+                .eq(Serve::getId, id)
+                .set(Serve::getSaleStatus, FoundationStatusEnum.ENABLE.getStatus())
+                .update();
+        if(!update){
+            throw new CommonException("上架服务失败");
+        }
+        return baseMapper.selectById(id);
+    }
 }

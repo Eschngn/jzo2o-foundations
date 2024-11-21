@@ -35,9 +35,16 @@ public interface IServeService extends IService<Serve> {
     /**
      * 服务价格修改
      *
-     * @param id    服务id
+     * @param id 服务id
      * @param price 价格
      * @return 服务
      */
     Serve update(Long id, BigDecimal price);
+
+    /**
+     * 上架
+     *
+     * @param id 服务id
+     */
+    Serve onSale(Long id);
 }
