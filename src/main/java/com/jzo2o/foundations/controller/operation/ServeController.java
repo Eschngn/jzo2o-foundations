@@ -59,4 +59,16 @@ public class ServeController {
     public void onSale(@PathVariable("id") Long id) {
         serveService.onSale(id);
     }
+
+    @PutMapping("/offSale/{id}")
+    @ApiOperation("区域服务上架")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "服务id", required = true, dataTypeClass = Long.class),
+    })
+    public void offSale(@PathVariable("id") Long id) {
+        serveService.offSale(id);
+    }
+
+
+
 }
