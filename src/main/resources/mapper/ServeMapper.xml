@@ -30,6 +30,12 @@
         WHERE region_id = #{regionId}
           and sale_status = 2
     </select>
+    <select id="queryEnableServeItemByServeItemId" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM serve
+        WHERE serve_item_id = #{serveItemId}
+          and sale_status = 2
+    </select>
 
 
 </mapper>
