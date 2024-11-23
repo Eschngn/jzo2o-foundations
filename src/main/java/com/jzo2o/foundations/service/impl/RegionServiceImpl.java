@@ -14,8 +14,11 @@ import com.jzo2o.foundations.constants.RedisConstants;
 import com.jzo2o.foundations.enums.FoundationStatusEnum;
 import com.jzo2o.foundations.mapper.CityDirectoryMapper;
 import com.jzo2o.foundations.mapper.RegionMapper;
+import com.jzo2o.foundations.mapper.ServeItemMapper;
+import com.jzo2o.foundations.mapper.ServeMapper;
 import com.jzo2o.foundations.model.domain.CityDirectory;
 import com.jzo2o.foundations.model.domain.Region;
+import com.jzo2o.foundations.model.domain.ServeItem;
 import com.jzo2o.foundations.model.dto.request.RegionPageQueryReqDTO;
 import com.jzo2o.foundations.model.dto.request.RegionUpsertReqDTO;
 import com.jzo2o.foundations.model.dto.response.RegionResDTO;
@@ -43,6 +46,10 @@ public class RegionServiceImpl extends ServiceImpl<RegionMapper, Region> impleme
     private IConfigRegionService configRegionService;
     @Resource
     private CityDirectoryMapper cityDirectoryMapper;
+    @Resource
+    private ServeMapper serveMapper;
+    @Resource
+    private ServeItemMapper serveItemMapper;
 
 
     /**
@@ -160,7 +167,12 @@ public class RegionServiceImpl extends ServiceImpl<RegionMapper, Region> impleme
             throw new ForbiddenOperationException("草稿或禁用状态方可启用");
         }
         //如果需要启用区域，需要校验该区域下是否有上架的服务
-        //todo
+        Long regionId = region.getId();
+        // 获取该区域下的启用服务项数量
+        int count = serveMapper.queryEnableServeItemByRegionId(regionId);
+        if(count==0){
+            throw new ForbiddenOperationException("该区域下无上架服务,无法启用");
+        }
 
         //更新启用状态
         LambdaUpdateWrapper<Region> updateWrapper = Wrappers.<Region>lambdaUpdate()

@@ -24,6 +24,12 @@
             serve.region_id = #{regionId}
     </select>
 
+    <select id="queryEnableServeItemByRegionId" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM serve
+        WHERE region_id = #{regionId}
+          and sale_status = 2
+    </select>
 
 
 </mapper>
