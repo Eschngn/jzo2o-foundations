@@ -60,4 +60,10 @@ public interface IServeService extends IService<Serve> {
      * @param id
      */
     Serve onHot(Long id);
+
+    /**
+     * 取消热门
+     * @param id
+     */
+    Serve offHot(Long id);
 }

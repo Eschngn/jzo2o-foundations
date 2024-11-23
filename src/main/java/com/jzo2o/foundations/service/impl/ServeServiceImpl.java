@@ -190,9 +190,39 @@ public class ServeServiceImpl extends ServiceImpl<ServeMapper, Serve> implements
                 .set(Serve::getIsHot, FoundationHotEnum.HOT.getStatus())
                 .update();
         if(!update){
-            throw new CommonException("下架服务失败");
+            throw new CommonException("服务设置热门失败");
         }
         return baseMapper.selectById(id);
+    }
 
+    @Override
+    public Serve offHot(Long id) {
+        Serve serve = baseMapper.selectById(id);
+        if(ObjectUtil.isNull(serve)){
+            throw new ForbiddenOperationException("区域服务不存在");
+        }
+        // 上架状态
+        Integer saleStatus = serve.getSaleStatus();
+        if(saleStatus!=FoundationStatusEnum.ENABLE.getStatus()){
+            throw new ForbiddenOperationException("上架状态方可取消热门");
+        }
+        // 服务项id
+        Long serveItemId = serve.getServeItemId();
+        ServeItem serveItem = serveItemMapper.selectById(serveItemId);
+        if(ObjectUtil.isNull(serveItem)){
+            throw new ForbiddenOperationException("所属服务项不存在");
+        }
+        if(serveItem.getActiveStatus()!=FoundationStatusEnum.ENABLE.getStatus()){
+            throw new ForbiddenOperationException("服务项为启用状态方可取消热门");
+        }
+        // 更新热门状态
+        boolean update = lambdaUpdate()
+                .eq(Serve::getId, id)
+                .set(Serve::getIsHot, FoundationHotEnum.notHot.getStatus())
+                .update();
+        if(!update){
+            throw new CommonException("服务取消热门失败");
+        }
+        return baseMapper.selectById(id);
     }
 }
