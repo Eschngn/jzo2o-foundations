@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jzo2o.common.expcetions.CommonException;
 import com.jzo2o.common.expcetions.ForbiddenOperationException;
 import com.jzo2o.common.model.PageResult;
+import com.jzo2o.foundations.enums.FoundationHotEnum;
 import com.jzo2o.foundations.enums.FoundationStatusEnum;
 import com.jzo2o.foundations.mapper.RegionMapper;
 import com.jzo2o.foundations.mapper.ServeItemMapper;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Wilson
@@ -160,5 +162,37 @@ public class ServeServiceImpl extends ServiceImpl<ServeMapper, Serve> implements
             throw new CommonException("下架服务失败");
         }
         return baseMapper.selectById(id);
+    }
+
+    @Override
+    public Serve onHot(Long id) {
+        Serve serve = baseMapper.selectById(id);
+        if(ObjectUtil.isNull(serve)){
+            throw new ForbiddenOperationException("区域服务不存在");
+        }
+        // 上架状态
+        Integer saleStatus = serve.getSaleStatus();
+        if(saleStatus!=FoundationStatusEnum.ENABLE.getStatus()){
+            throw new ForbiddenOperationException("上架状态方可设置为热门");
+        }
+        // 服务项id
+        Long serveItemId = serve.getServeItemId();
+        ServeItem serveItem = serveItemMapper.selectById(serveItemId);
+        if(ObjectUtil.isNull(serveItem)){
+            throw new ForbiddenOperationException("所属服务项不存在");
+        }
+        if(serveItem.getActiveStatus()!=FoundationStatusEnum.ENABLE.getStatus()){
+            throw new ForbiddenOperationException("服务项为启用状态方可设置为热门");
+        }
+        // 更新热门状态
+        boolean update = lambdaUpdate()
+                .eq(Serve::getId, id)
+                .set(Serve::getIsHot, FoundationHotEnum.HOT.getStatus())
+                .update();
+        if(!update){
+            throw new CommonException("下架服务失败");
+        }
+        return baseMapper.selectById(id);
+
     }
 }
