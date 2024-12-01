@@ -28,20 +28,25 @@ public interface ServeMapper extends BaseMapper<Serve> {
     List<ServeResDTO> queryServeListByRegionId(@Param("regionId") Long regionId);
 
     /**
-     * 根据区域查询启用服务项数量
+     * 根据区域查询服务图标分类
      * @param regionId
      * @return
      */
-    int queryEnableServeItemByRegionId(@Param("regionId") Long regionId);
+    List<ServeCategoryResDTO> findServeIconCategoryByRegionId(@Param("regionId") Long regionId);
 
     /**
-     * 根据服务项id查询启用服务项数量
-     * @param serveItemId
+     * 根据区域查询热门服务列表
+     * @param regionId
      * @return
      */
-    int queryEnableServeItemByServeItemId(@Param("serveItemId") Long serveItemId);
+    List<ServeAggregationSimpleResDTO> queryHotServeListByRegionId(@Param("regionId") Long regionId);
 
-
+    /**
+     * 根据服务id查询服务详情
+     * @param id
+     * @return
+     */
+    List<ServeAggregationSimpleResDTO> queryServeDetailById(@Param("id") Long id);
 
 
 }
